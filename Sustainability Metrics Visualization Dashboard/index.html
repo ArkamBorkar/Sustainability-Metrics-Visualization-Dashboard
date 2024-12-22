@@ -1,0 +1,369 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sustainability Metrics Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+</head>
+<body class="bg-gray-100 p-2 sm:p-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Average Disposal Fee -->
+        <div class="bg-green-200 p-3 rounded-lg text-center">
+            <h2 class="text-lg sm:text-xl font-semibold">Avg Disposal Fee (Collection Jobs)</h2>
+            <p class="text-2xl sm:text-4xl font-bold">27.06</p>
+        </div>
+        <!-- Number of Jobs Fulfilled -->
+        <div class="bg-green-200 p-3 rounded-lg text-center">
+            <h2 class="text-lg sm:text-xl font-semibold">Jobs Fulfilled</h2>
+            <p class="text-2xl sm:text-4xl font-bold">100</p>
+        </div>
+        <!-- Percentage of Toxic Substances Safely Disposed -->
+        <div class="bg-white p-3 rounded-lg">
+            <h2 class="text-lg sm:text-xl font-semibold text-center">Toxic Substances Safely Disposed (%)</h2>
+            <canvas id="toxicSubstancesChart" class="w-full h-64 sm:h-80"></canvas>
+        </div>
+        <!-- Total Volume of Waste Collected -->
+        <div class="bg-white p-3 rounded-lg">
+            <h2 class="text-lg sm:text-xl font-semibold text-center">Total Waste Collected</h2>
+            <canvas id="wasteCollectedChart" class="w-full h-64 sm:h-80"></canvas>
+        </div>
+        <!-- Weekly Job Completion Trend -->
+        <div class="bg-white p-3 rounded-lg">
+            <h2 class="text-lg sm:text-xl font-semibold text-center">Weekly Job Completion Trend</h2>
+            <canvas id="jobCompletionChart" class="w-full h-64 sm:h-80"></canvas>
+        </div>
+        <!-- Waste Category Distribution -->
+        <div class="bg-white p-3 rounded-lg">
+            <h2 class="text-lg sm:text-xl font-semibold text-center">Waste Category Distribution</h2>
+            <canvas id="wasteCategoryChart" class="w-full h-64 sm:h-80"></canvas>
+        </div>
+        <!-- Total Waste by Category Across Weeks -->
+        <div class="bg-white p-3 rounded-lg">
+            <h2 class="text-lg sm:text-xl font-semibold text-center">Waste by Category Across Weeks</h2>
+            <canvas id="wasteByCategoryChart" class="w-full h-64 sm:h-80"></canvas>
+        </div>
+        <!-- Reduction in CO2 and Greenhouse Gas Emissions -->
+        <div class="bg-white p-3 rounded-lg">
+            <h2 class="text-lg sm:text-xl font-semibold text-center">CO2 & GHG Emissions Reduction</h2>
+            <canvas id="emissionsReductionChart" class="w-full h-64 sm:h-80"></canvas>
+        </div>
+        <!-- Distribution of Disposal Fees -->
+        <div class="bg-white p-3 rounded-lg">
+            <h2 class="text-lg sm:text-xl font-semibold text-center">Disposal Fees Distribution</h2>
+            <canvas id="disposalFeesChart" class="w-full h-64 sm:h-80"></canvas>
+        </div>
+        <!-- Energy Conserved by Service Type -->
+        <div class="bg-white p-3 rounded-lg">
+            <h2 class="text-lg sm:text-xl font-semibold text-center">Energy Conserved (Week 4)</h2>
+            <canvas id="energyConservedChart" class="w-full h-64 sm:h-80"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // Chart.register(ChartDataLabels);
+
+        // Data for charts
+        const toxicSubstancesData = {
+            labels: ['Battery Disposal', 'Desktop Recycling', 'Laptop Recycling', 'Miscellaneous', 'Mobile Phone Recycling', 'Printer Recycling', 'TV Recycling'],
+            datasets: [{
+                data: [31.31, 37.05, 35.67, 42.58, 41.48, 39.25, 28.13],
+                backgroundColor: ['#709c5b', '#4da710', '#b2e8a0', '#93c47d', '#6aa84f', '#ff9a68', '#38761d']
+            }]
+        };
+
+        const wasteCollectedData = {
+            labels: ['Battery Disposal', 'Desktop Recycling', 'Laptop Recycling', 'Miscellaneous', 'Mobile Phone Recycling', 'Printer Recycling', 'TV Recycling'],
+            datasets: [{
+                label: 'Volume of Waste Collected',
+                data: [197.44, 191.74, 311.89, 285.8, 244.61, 272.61, 248.12],
+                backgroundColor: '#4caf50'
+            }]
+        };
+
+        const jobCompletionData = {
+            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'],
+            datasets: [{
+                label: 'Jobs Completed',
+                data: [20, 20, 22, 28, 10],
+                backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                borderColor: '#4caf50',
+                borderWidth: 1
+            }]
+        };
+
+        const wasteCategoryData = {
+            labels: ['Large', 'Medium', 'Small'],
+            datasets: [{
+                data: [15, 64, 21],
+                backgroundColor: ['#4caf50', '#8bc34a', '#cddc39']
+            }]
+        };
+
+        const wasteByCategoryData = {
+            labels: ['Battery Disposal', 'Desktop Recycling', 'Laptop Recycling', 'Miscellaneous', 'Mobile Phone Recycling', 'Printer Recycling', 'TV Recycling'],
+            datasets: [{
+                label: 'Volume of Waste (kg)',
+                data: [397.6, 172.01, 520.2, 635.82, 326.36, 1008.59, 167.99],
+                backgroundColor: '#4caf50'
+            }]
+        };
+
+        const emissionsReductionData = {
+            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'],
+            datasets: [
+                {
+                    label: 'GHG Emissions Reduced (kg CO2e)',
+                    data: [1103.78, 809.25, 961.83, 1225.98, 460.4],
+                    backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                    borderColor: '#4caf50',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Carbon Emissions Reduced (kg)',
+                    data: [807.16, 789.8, 687.13, 996.27, 327.5],
+                    backgroundColor: 'rgba(139, 195, 74, 0.2)',
+                    borderColor: '#8bc34a',
+                    borderWidth: 1
+                }
+            ]
+        };
+
+        const disposalFeesData = {
+            labels: ['13.69', '35.2', '6.78', '70.43', '17.48', '23', '22.07', '46.45'],
+            datasets: [{
+                label: 'Disposal Fees',
+                data: [100, 200, 300, 400, 500, 600, 700, 800],
+                backgroundColor: '#4caf50'
+            }]
+        };
+
+        const energyConservedData = {
+            labels: ['Battery Disposal', 'Desktop Recycling', 'Laptop Recycling', 'Miscellaneous', 'Mobile Phone Recycling', 'Printer Recycling', 'TV Recycling'],
+            datasets: [{
+                label: 'Energy Conserved',
+                data: [397.6, 172.01, 520.2, 635.82, 326.36, 1008.59, 167.99],
+                backgroundColor: '#4caf50'
+            }]
+        };
+
+        // Create charts
+        Chart.register(ChartDataLabels);
+
+        // const toxicSubstancesChart = new Chart(document.getElementById('toxicSubstancesChart'), {
+        //     type: 'pie',
+        //     data: toxicSubstancesData,
+        //     options: {
+        //         plugins: {
+        //             datalabels: {
+        //                 formatter: (value, context) => {
+        //                     const total = context.dataset.data.reduce((sum, val) => sum + val, 0);
+        //                     const percentage = ((value / total) * 100).toFixed(1);
+        //                     return percentage + '%';
+        //                 },
+        //                 color: '#fff',
+        //                 font: { weight: 'bold' }
+        //             }
+        //         }
+        //     }
+        // });
+        const toxicSubstancesChart = new Chart(document.getElementById('toxicSubstancesChart'), {
+    type: 'pie',
+    data: toxicSubstancesData,
+    options: {
+        plugins: {
+            datalabels: {
+                formatter: (value, context) => {
+                    const total = context.dataset.data.reduce((sum, val) => sum + val, 0);
+                    const percentage = ((value / total) * 100).toFixed(1);
+                    return percentage + '%';
+                },
+                color: '#fff',
+                
+            }
+        },
+        responsive: true,
+        
+    }
+});
+
+        const wasteCollectedChart = new Chart(document.getElementById('wasteCollectedChart'), {
+    type: 'bar',
+    data: wasteCollectedData,
+    options: {
+        plugins: {
+            datalabels: {
+                display: false // Hides the data labels
+                
+            }
+        },
+        
+        responsive: true,
+        scales: {
+            x: {
+                ticks: {
+                    font: {
+                        size: 9, // Smaller font size for labels on mobile screens
+                    }
+                }
+            },
+            y: {
+                ticks: {
+                    font: {
+                        size: 9, // Smaller font size for labels on mobile screens
+                    }
+                }
+            }
+        }
+    }
+});
+
+        const jobCompletionChart = new Chart(document.getElementById('jobCompletionChart'), {
+            type: 'line',
+            data: jobCompletionData,
+            options: {
+                plugins: { datalabels: { display: false } }
+            }
+        });
+
+        const wasteCategoryChart = new Chart(document.getElementById('wasteCategoryChart'), {
+    type: 'doughnut',
+    data: wasteCategoryData,
+    options: {
+        plugins: {
+            datalabels: {
+                formatter: (value, context) => {
+                    const total = context.dataset.data.reduce((sum, val) => sum + val, 0);
+                    const percentage = ((value / total) * 100).toFixed(1);
+                    return percentage + '%';
+                },
+                color: '#fff',
+                font: {
+                    weight: 'bold',
+                    size: 12, // default font size for larger screens
+                }
+            }
+        },
+        responsive: true,
+        scales: {
+            x: {
+                ticks: {
+                    font: {
+                        size: 9, // Smaller font size for labels on mobile screens
+                    }
+                }
+            },
+            y: {
+                ticks: {
+                    font: {
+                        size: 9, // Smaller font size for labels on mobile screens
+                    }
+                }
+            }
+        }
+        // Adjust the chart title or other labels if you need
+        
+    }
+});        
+
+        const wasteByCategoryChart = new Chart(document.getElementById('wasteByCategoryChart'), {
+    type: 'bar',
+    data: wasteByCategoryData,
+    options: {
+        plugins: {
+            datalabels: {
+                display: false // Hides the data labels
+            }
+        },
+        responsive: true,
+        scales: {
+            x: {
+                ticks: {
+                    font: {
+                        size: 9, // Smaller font size for mobile, larger for larger screens
+                    }
+                }
+            },
+            y: {
+                ticks: {
+                    font: {
+                        size: 9, // Smaller font size for mobile, larger for larger screens
+                    }
+                }
+            }
+        }
+    }
+});
+
+        const emissionsReductionChart = new Chart(document.getElementById('emissionsReductionChart'), {
+            type: 'line',
+            data: emissionsReductionData,
+            options: {
+                plugins: { datalabels: { display: false } }
+            }
+        });
+        
+
+        const disposalFeesChart = new Chart(document.getElementById('disposalFeesChart'), {
+    type: 'bar',
+    data: disposalFeesData,
+    options: {
+        plugins: {
+            datalabels: {
+                display: false // Hides the data labels
+            }
+        },
+        responsive: true,
+        scales: {
+            x: {
+                ticks: {
+                    font: {
+                        size: 9, // Smaller font size for mobile, larger for larger screens
+                    }
+                }
+            },
+            y: {
+                ticks: {
+                    font: {
+                        size:9, // Smaller font size for mobile, larger for larger screens
+                    }
+                }
+            }
+        }
+    }
+});
+      
+
+        const energyConservedChart = new Chart(document.getElementById('energyConservedChart'), {
+    type: 'bar',
+    data: energyConservedData,
+    options: {
+        plugins: {
+            datalabels: {
+                display: false // Hides the data labels
+            }
+        },
+        responsive: true,
+        scales: {
+            x: {
+                ticks: {
+                    font: {
+                        size: 9, // Smaller font size for mobile, larger for larger screens
+                    }
+                }
+            },
+            y: {
+                ticks: {
+                    font: {
+                        size: 9, // Smaller font size for mobile, larger for larger screens
+                    }
+                }
+            }
+        }
+    }
+});
+
+    </script>
+</body>
+</html>
